@@ -9,3 +9,111 @@
   /assets
       logo.png
   README.md
+
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<title>Buscador - HITSS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;padding:20px;background:#fafafa;color:#222}
+  header{display:flex;align-items:center;gap:12px}
+  .search{max-width:900px;margin:20px auto}
+  input[type=text]{width:80%;padding:10px;border-radius:6px;border:1px solid #ddd}
+  button{padding:10px 14px;border-radius:6px;background:#d84315;color:#fff;border:none}
+  .login{position:fixed;right:16px;top:16px}
+  .results{margin-top:20px}
+  table{width:100%;border-collapse:collapse}
+  th,td{border:1px solid #eee;padding:8px;text-align:left}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="HITSS" height="40">
+  <h1>Buscador HITSS</h1>
+  <div style="flex:1"></div>
+  <div class="login">
+    <button id="btnLogin">Login</button>
+  </div>
+</header>
+
+<div class="search">
+  <input id="q" type="text" placeholder="Ex: Qual o telefone da Vivo?">
+  <button id="btnBuscar">Buscar</button>
+
+  <div class="results" id="results"></div>
+</div>
+
+<script>
+const RAW_BASE = "https://raw.githubusercontent.com/USERNAME/REPO/BRANCH/data"; 
+// substitua USERNAME/REPO/BRANCH pelo seu repo
+
+let dataCache = { operadoras: [], designacoes: [] };
+
+async function loadData(){
+  const op = await fetch(RAW_BASE + "/operadoras.json").then(r=>r.json()).catch(()=>[]);
+  const de = await fetch(RAW_BASE + "/designacoes.json").then(r=>r.json()).catch(()=>[]);
+  dataCache.operadoras = op; dataCache.designacoes = de;
+}
+function renderOperadoras(results){
+  if(results.length===0){ document.getElementById('results').innerText='Nenhum resultado'; return; }
+  let html = '<table><tr><th>Operadora</th><th>Links</th><th>User</th><th>Senha</th><th>Email</th><th>Tel</th><th>OBS</th><th>CNPJ</th></tr>';
+  results.forEach(r=>{
+    html += `<tr>
+      <td>${r.operadora||''}</td>
+      <td>${r.links||''}</td>
+      <td>${r.user||''}</td>
+      <td>${r.senha||''}</td>
+      <td>${r.email||''}</td>
+      <td>${r.telefone||''}</td>
+      <td>${r.obs||''}</td>
+      <td>${r.cnpj||''}</td>
+    </tr>`;
+  });
+  html += '</table>';
+  document.getElementById('results').innerHTML = html;
+}
+function search(q){
+  q = q.toLowerCase();
+  // busca simples por operadora e telefone/email
+  const hits = dataCache.operadoras.filter(o=>
+    (o.operadora||'').toLowerCase().includes(q) ||
+    (o.telefone||'').toLowerCase().includes(q) ||
+    (o.email||'').toLowerCase().includes(q)
+  );
+  if(hits.length) return renderOperadoras(hits);
+  // buscar designações/unidade
+  const hits2 = dataCache.designacoes.filter(d=>
+    (d.unidade||'').toLowerCase().includes(q) ||
+    ( (d.designacoes||[]).join(' ').toLowerCase().includes(q) )
+  );
+  if(hits2.length){
+    let html = '<table><tr><th>Unidade</th><th>Operadoras</th><th>Designações</th></tr>';
+    hits2.forEach(d=>{
+      html += `<tr><td>${d.unidade}</td><td>${(d.operadoras||[]).join(', ')}</td><td>${(d.designacoes||[]).join(', ')}</td></tr>`;
+    });
+    html += '</table>';
+    document.getElementById('results').innerHTML = html;
+    return;
+  }
+  document.getElementById('results').innerText = 'Nenhum resultado encontrado';
+}
+
+document.getElementById('btnBuscar').addEventListener('click', ()=> search(document.getElementById('q').value));
+document.getElementById('btnLogin').addEventListener('click', ()=>{
+  const user = prompt('Usuário:');
+  const pass = prompt('Senha:');
+  if(user==='AMBEV_NOC' && pass==='Hitss@NOC'){
+    alert('Login ok — modo edição desbloqueado (apenas front-end).');
+    // aqui você poderia mostrar elementos de edição
+  } else alert('Credenciais inválidas');
+});
+
+loadData();
+</script>
+
+</body>
+</html>
