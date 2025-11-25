@@ -94,7 +94,6 @@ function renderDesignacoesTable(){
 function renderPassagem(){
   const el = document.getElementById('passagemHtml');
   if(!data.passagem || Object.keys(data.passagem).length===0){ el.innerHTML = '<i>Sem conteúdo de passagem</i>'; return; }
-  // if passagem contains html, show it; otherwise show JSON pretty
   if(data.passagem.html) el.innerHTML = data.passagem.html;
   else el.innerHTML = `<pre>${JSON.stringify(data.passagem, null, 2)}</pre>`;
 }
@@ -132,14 +131,20 @@ function openEditor(filename, currentJson){
   document.getElementById('modalTitle').innerText = 'Editor JSON - ' + filename;
   document.getElementById('modalBody').innerHTML = `<textarea id="editorArea" style="width:100%;height:260px;">${JSON.stringify(currentJson, null, 2)}</textarea>`;
   modal.classList.remove('hidden');
+
   document.getElementById('modalOk').onclick = async ()=>{
     const newText = document.getElementById('editorArea').value;
     let parsed;
-    try{ parsed = JSON.parse(newText); }catch(e){ alert('JSON inválido: ' + e.message); return; }
+    try{ 
+      parsed = JSON.parse(newText); 
+    }catch(e){ 
+      alert('JSON inválido: ' + e.message); 
+      return; 
+    }
     modal.classList.add('hidden');
-    // call serverless
     await saveJson(filename, parsed);
   };
+
   document.getElementById('modalCancel').onclick = ()=> modal.classList.add('hidden');
 }
 
@@ -151,7 +156,7 @@ async function saveJson(filename, jsonContent){
   }
 
   try{
-    const resp = await fetch('/api/update_json'), {
+    const resp = await fetch('/api/update_json', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
       body: JSON.stringify({ 
@@ -175,7 +180,6 @@ async function saveJson(filename, jsonContent){
     console.error(e);
   }
 }
-
 
 // attach editor buttons
 document.getElementById('addOperadora').addEventListener('click', ()=> {
