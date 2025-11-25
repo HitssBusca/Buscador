@@ -56,17 +56,21 @@
       <div class="edit-controls hidden" id="passagemEdit">
         <button id="editPassagem">Editar Passagem</button>
       </div>
-      <p class="note">O HTML de passagem de turno original que você enviou está disponível aqui: <a href="file:///mnt/data/PassagemV3.2.html" target="_blank">PassagemV3.2.html (local upload)</a></p>
+      <p class="note">O HTML de passagem de turno original está disponível localmente.</p>
     </section>
   </main>
 
-  <!-- modal simples -->
+  <!-- modal -->
   <div id="modal" class="hidden">
-  <div id="modalTitle"></div>
-  <div id="modalBody"></div>
-  <button id="modalCancel">Cancelar</button>
-  <button id="modalOk">Salvar</button>
-</div>
+    <div class="modal-content">
+      <div id="modalTitle" class="modal-title"></div>
+      <div id="modalBody" class="modal-body"></div>
+      <div class="modal-footer">
+        <button id="modalCancel">Cancelar</button>
+        <button id="modalOk">Salvar</button>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
