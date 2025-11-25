@@ -1,6 +1,5 @@
 // app.js - leitura + busca + edição via função serverless (Netlify/Vercel)
-// CONFIG: atualize OWNER/REPO/BRANCH se for ler direto do raw.githubusercontent
-const OWNER = "HitssBusca"; // substitua se necessário
+const OWNER = "HitssBusca";
 const REPO = "Buscador";
 const BRANCH = "main";
 const RAW_BASE = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/data`;
@@ -24,7 +23,7 @@ async function loadAll(){
   }
 }
 
-// Search
+// search
 function search(q){
   q = (q||'').toLowerCase().trim();
   if(!q){ document.getElementById('results').innerHTML = '<i>Digite termo para buscar</i>'; return; }
@@ -33,18 +32,12 @@ function search(q){
     (o.telefone||'').toLowerCase().includes(q) ||
     (o.email||'').toLowerCase().includes(q)
   );
-  if(hitsOp.length){
-    renderOperadorasSearch(hitsOp);
-    return;
-  }
+  if(hitsOp.length){ renderOperadorasSearch(hitsOp); return; }
   const hitsD = data.designacoes.filter(d =>
     (d.unidade||'').toLowerCase().includes(q) ||
     (d.designacoes||[]).join(' ').toLowerCase().includes(q)
   );
-  if(hitsD.length){
-    renderDesignacoesSearch(hitsD);
-    return;
-  }
+  if(hitsD.length){ renderDesignacoesSearch(hitsD); return; }
   document.getElementById('results').innerText = 'Nenhum resultado encontrado';
 }
 
@@ -98,7 +91,7 @@ function renderPassagem(){
   else el.innerHTML = `<pre>${JSON.stringify(data.passagem, null, 2)}</pre>`;
 }
 
-// basic tab handling
+// tabs
 document.querySelectorAll('.tabs button').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
@@ -109,7 +102,7 @@ document.querySelectorAll('.tabs button').forEach(btn=>{
   });
 });
 
-// login (front-end gate)
+// login
 document.getElementById('btnLogin').addEventListener('click', ()=>{
   const u = prompt('Usuário:');
   const p = prompt('Senha:');
@@ -122,10 +115,10 @@ document.getElementById('btnLogin').addEventListener('click', ()=>{
   }
 });
 
-// search button
+// search
 document.getElementById('btnBuscar').addEventListener('click', ()=> search(document.getElementById('q').value));
 
-// saveJson - calls the serverless function to update the JSON in the repo
+// saveJson
 async function saveJson(filename, jsonContent){
   if(!logged){ 
     alert('Apenas usuários autenticados podem salvar.'); 
@@ -158,7 +151,7 @@ async function saveJson(filename, jsonContent){
   }
 }
 
-// Robust editor modal with real-time JSON validation
+// robust editor modal
 function openEditor(filename, currentJson){
   const modal = document.getElementById('modal');
   const modalTitle = document.getElementById('modalTitle');
@@ -173,6 +166,8 @@ function openEditor(filename, currentJson){
 
   const editorArea = document.getElementById('editorArea');
   const jsonError = document.getElementById('jsonError');
+
+  modalOk.disabled = true; // inicialmente bloqueado
 
   function validateJson() {
     try {
@@ -195,7 +190,6 @@ function openEditor(filename, currentJson){
       await saveJson(filename, parsed);
     } catch(e) {
       alert('JSON inválido: ' + e.message);
-      console.error(e);
     }
   };
 
@@ -216,9 +210,6 @@ document.getElementById('addDesignacao').addEventListener('click', ()=>{
 document.getElementById('editPassagem').addEventListener('click', ()=> {
   openEditor('passagem.json', data.passagem);
 });
-
-// search button
-document.getElementById('btnBuscar').addEventListener('click', ()=> search(document.getElementById('q').value));
 
 // initial load
 loadAll();
