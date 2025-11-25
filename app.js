@@ -150,7 +150,7 @@ async function saveJson(filename, jsonContent){
     const resp = await fetch('/.netlify/functions/update_json', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ path: `data/${filename}`, content: jsonContent })
+      body: JSON.stringify({ filePath: `data/${filename}`, content: JSON.stringify(jsonContent) })
     });
     const j = await resp.json();
     if(resp.ok) {
