@@ -7,12 +7,14 @@ const RAW_BASE = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/d
 let data = { operadoras: [], designacoes: [], passagem: {} };
 let logged = false;
 
-// load data
+// --- Load all JSON data ---
 async function loadAll() {
   try {
-    const o = await fetch(RAW_BASE + '/operadoras.json').then(r => r.json());
-    const d = await fetch(RAW_BASE + '/designacoes.json').then(r => r.json());
-    const p = await fetch(RAW_BASE + '/passagem.json').then(r => r.json());
+    const [o, d, p] = await Promise.all([
+      fetch(RAW_BASE + '/operadoras.json').then(r => r.json()),
+      fetch(RAW_BASE + '/designacoes.json').then(r => r.json()),
+      fetch(RAW_BASE + '/passagem.json').then(r => r.json())
+    ]);
     data.operadoras = o;
     data.designacoes = d;
     data.passagem = p;
@@ -25,7 +27,7 @@ async function loadAll() {
   }
 }
 
-// search
+// --- Search ---
 function search(q) {
   q = (q || '').toLowerCase().trim();
   if (!q) { document.getElementById('results').innerHTML = '<i>Digite termo para buscar</i>'; return; }
@@ -46,7 +48,7 @@ function search(q) {
   document.getElementById('results').innerText = 'Nenhum resultado encontrado';
 }
 
-// renderers
+// --- Renderers ---
 function renderOperadorasSearch(list) {
   const el = document.getElementById('results');
   let html = '<table><tr><th>Operadora</th><th>Links</th><th>User</th><th>Senha</th><th>Email</th><th>Telefone</th><th>Obs</th><th>CNPJ</th></tr>';
@@ -95,7 +97,7 @@ function renderPassagem() {
   el.innerHTML = data.passagem.html ? data.passagem.html : `<pre>${JSON.stringify(data.passagem, null, 2)}</pre>`;
 }
 
-// tabs
+// --- Tabs ---
 document.querySelectorAll('.tabs button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
@@ -106,7 +108,7 @@ document.querySelectorAll('.tabs button').forEach(btn => {
   });
 });
 
-// login
+// --- Login ---
 document.getElementById('btnLogin').addEventListener('click', () => {
   const u = prompt('Usuário:');
   const p = prompt('Senha:');
@@ -119,15 +121,12 @@ document.getElementById('btnLogin').addEventListener('click', () => {
   }
 });
 
-// search
+// --- Search button ---
 document.getElementById('btnBuscar').addEventListener('click', () => search(document.getElementById('q').value));
 
-// saveJson
+// --- Save JSON ---
 async function saveJson(filename, jsonContent) {
-  if (!logged) {
-    alert('Apenas usuários autenticados podem salvar.');
-    return;
-  }
+  if (!logged) { alert('Apenas usuários autenticados podem salvar.'); return; }
   try {
     const resp = await fetch('/api/update_json', {
       method: 'POST',
@@ -151,7 +150,7 @@ async function saveJson(filename, jsonContent) {
   }
 }
 
-// robust editor modal
+// --- Robust modal editor ---
 function openEditor(filename, currentJson) {
   const modal = document.getElementById('modal');
   const modalTitle = document.getElementById('modalTitle');
@@ -168,7 +167,6 @@ function openEditor(filename, currentJson) {
   const jsonError = document.getElementById('jsonError');
   modalOk.disabled = true;
 
-  // valida JSON em tempo real
   editorArea.addEventListener('input', () => {
     try {
       JSON.parse(editorArea.value);
@@ -192,7 +190,7 @@ function openEditor(filename, currentJson) {
   modalCancel.onclick = () => modal.classList.add('hidden');
 }
 
-// attach editor buttons
+// --- Editor buttons ---
 document.getElementById('addOperadora').addEventListener('click', () => {
   const copy = [...data.operadoras];
   copy.push({ operadora: 'NOVA', links: '', user: '', senha: '', email: '', telefone: '', obs: '', cnpj: '' });
@@ -207,5 +205,5 @@ document.getElementById('editPassagem').addEventListener('click', () => {
   openEditor('passagem.json', data.passagem);
 });
 
-// initial load
+// --- Initial load ---
 loadAll();
