@@ -125,29 +125,6 @@ document.getElementById('btnLogin').addEventListener('click', ()=>{
 // search button
 document.getElementById('btnBuscar').addEventListener('click', ()=> search(document.getElementById('q').value));
 
-// Simple editor flow (opens modal with JSON and calls serverless)
-function openEditor(filename, currentJson){
-  const modal = document.getElementById('modal');
-  document.getElementById('modalTitle').innerText = 'Editor JSON - ' + filename;
-  document.getElementById('modalBody').innerHTML = `<textarea id="editorArea" style="width:100%;height:260px;">${JSON.stringify(currentJson, null, 2)}</textarea>`;
-  modal.classList.remove('hidden');
-
-  document.getElementById('modalOk').onclick = async ()=>{
-    const newText = document.getElementById('editorArea').value;
-    let parsed;
-    try{ 
-      parsed = JSON.parse(newText); 
-    }catch(e){ 
-      alert('JSON inválido: ' + e.message); 
-      return; 
-    }
-    modal.classList.add('hidden');
-    await saveJson(filename, parsed);
-  };
-
-  document.getElementById('modalCancel').onclick = ()=> modal.classList.add('hidden');
-}
-
 // saveJson - calls the serverless function to update the JSON in the repo
 async function saveJson(filename, jsonContent){
   if(!logged){ 
@@ -181,6 +158,50 @@ async function saveJson(filename, jsonContent){
   }
 }
 
+// Robust editor modal with real-time JSON validation
+function openEditor(filename, currentJson){
+  const modal = document.getElementById('modal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalOk = document.getElementById('modalOk');
+  const modalCancel = document.getElementById('modalCancel');
+
+  modalTitle.innerText = 'Editor JSON - ' + filename;
+  modalBody.innerHTML = `<textarea id="editorArea" style="width:100%;height:260px;">${JSON.stringify(currentJson, null, 2)}</textarea>
+                         <div id="jsonError" style="color:red; margin-top:5px;"></div>`;
+  modal.classList.remove('hidden');
+
+  const editorArea = document.getElementById('editorArea');
+  const jsonError = document.getElementById('jsonError');
+
+  function validateJson() {
+    try {
+      JSON.parse(editorArea.value);
+      jsonError.innerText = '';
+      modalOk.disabled = false;
+    } catch(e) {
+      jsonError.innerText = 'JSON inválido: ' + e.message;
+      modalOk.disabled = true;
+    }
+  }
+
+  editorArea.addEventListener('input', validateJson);
+  validateJson();
+
+  modalOk.onclick = async () => {
+    try {
+      const parsed = JSON.parse(editorArea.value);
+      modal.classList.add('hidden');
+      await saveJson(filename, parsed);
+    } catch(e) {
+      alert('JSON inválido: ' + e.message);
+      console.error(e);
+    }
+  };
+
+  modalCancel.onclick = () => modal.classList.add('hidden');
+}
+
 // attach editor buttons
 document.getElementById('addOperadora').addEventListener('click', ()=> {
   const copy = [...data.operadoras];
@@ -195,6 +216,9 @@ document.getElementById('addDesignacao').addEventListener('click', ()=>{
 document.getElementById('editPassagem').addEventListener('click', ()=> {
   openEditor('passagem.json', data.passagem);
 });
+
+// search button
+document.getElementById('btnBuscar').addEventListener('click', ()=> search(document.getElementById('q').value));
 
 // initial load
 loadAll();
