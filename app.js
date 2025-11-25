@@ -8,23 +8,24 @@ let data = { operadoras: [], designacoes: [], passagem: {} };
 let logged = false;
 
 // --- Load all JSON data ---
-async function loadAll() {
-  try {
-    const [o, d, p] = await Promise.all([
-      fetch(RAW_BASE + '/operadoras.json').then(r => r.json()),
-      fetch(RAW_BASE + '/designacoes.json').then(r => r.json()),
-      fetch(RAW_BASE + '/passagem.json').then(r => r.json())
-    ]);
-    data.operadoras = o;
-    data.designacoes = d;
-    data.passagem = p;
-    renderOperadorasTable();
-    renderDesignacoesTable();
-    renderPassagem();
-  } catch (e) {
-    console.error('Erro ao carregar JSON:', e);
-    document.getElementById('results').innerText = 'Erro ao carregar dados. Verifique RAW_BASE e se os arquivos existem.';
-  }
+function loadAll() {
+  Promise.all([
+    fetch(RAW_BASE + '/operadoras.json').then(r => r.json()),
+    fetch(RAW_BASE + '/designacoes.json').then(r => r.json()),
+    fetch(RAW_BASE + '/passagem.json').then(r => r.json())
+  ])
+    .then(([o, d, p]) => {
+      data.operadoras = o;
+      data.designacoes = d;
+      data.passagem = p;
+      renderOperadorasTable();
+      renderDesignacoesTable();
+      renderPassagem();
+    })
+    .catch(e => {
+      console.error('Erro ao carregar JSON:', e);
+      document.getElementById('results').innerText = 'Erro ao carregar dados. Verifique RAW_BASE e se os arquivos existem.';
+    });
 }
 
 // --- Search ---
@@ -139,7 +140,7 @@ async function saveJson(filename, jsonContent) {
     const j = await resp.json();
     if (resp.ok) {
       alert('Arquivo salvo com sucesso. Aguarde o deploy.');
-      await loadAll();
+      loadAll();
     } else {
       alert('Erro ao salvar: ' + (j.error || JSON.stringify(j)));
       console.error(j);
