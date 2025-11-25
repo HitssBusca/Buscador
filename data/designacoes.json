@@ -1,1 +1,8 @@
 
+[
+  {
+    "unidade": "CD Megacentro",
+    "operadoras": ["VIVO", "CLARO"],
+    "designacoes": ["Designação 1", "Designação 2"]
+  }
+]
