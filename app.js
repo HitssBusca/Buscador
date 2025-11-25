@@ -8,151 +8,151 @@ let data = { operadoras: [], designacoes: [], passagem: {} };
 let logged = false;
 
 // load data
-async function loadAll(){
-  try{
-    const o = await fetch(RAW_BASE + '/operadoras.json').then(r=>r.json());
-    const d = await fetch(RAW_BASE + '/designacoes.json').then(r=>r.json());
-    const p = await fetch(RAW_BASE + '/passagem.json').then(r=>r.json());
-    data.operadoras = o; data.designacoes = d; data.passagem = p;
+async function loadAll() {
+  try {
+    const o = await fetch(RAW_BASE + '/operadoras.json').then(r => r.json());
+    const d = await fetch(RAW_BASE + '/designacoes.json').then(r => r.json());
+    const p = await fetch(RAW_BASE + '/passagem.json').then(r => r.json());
+    data.operadoras = o;
+    data.designacoes = d;
+    data.passagem = p;
     renderOperadorasTable();
     renderDesignacoesTable();
     renderPassagem();
-  }catch(e){
+  } catch (e) {
     console.error('Erro ao carregar JSON:', e);
     document.getElementById('results').innerText = 'Erro ao carregar dados. Verifique RAW_BASE e se os arquivos existem.';
   }
 }
 
 // search
-function search(q){
-  q = (q||'').toLowerCase().trim();
-  if(!q){ document.getElementById('results').innerHTML = '<i>Digite termo para buscar</i>'; return; }
+function search(q) {
+  q = (q || '').toLowerCase().trim();
+  if (!q) { document.getElementById('results').innerHTML = '<i>Digite termo para buscar</i>'; return; }
+
   const hitsOp = data.operadoras.filter(o =>
-    (o.operadora||'').toLowerCase().includes(q) ||
-    (o.telefone||'').toLowerCase().includes(q) ||
-    (o.email||'').toLowerCase().includes(q)
+    (o.operadora || '').toLowerCase().includes(q) ||
+    (o.telefone || '').toLowerCase().includes(q) ||
+    (o.email || '').toLowerCase().includes(q)
   );
-  if(hitsOp.length){ renderOperadorasSearch(hitsOp); return; }
+  if (hitsOp.length) { renderOperadorasSearch(hitsOp); return; }
+
   const hitsD = data.designacoes.filter(d =>
-    (d.unidade||'').toLowerCase().includes(q) ||
-    (d.designacoes||[]).join(' ').toLowerCase().includes(q)
+    (d.unidade || '').toLowerCase().includes(q) ||
+    (d.designacoes || []).join(' ').toLowerCase().includes(q)
   );
-  if(hitsD.length){ renderDesignacoesSearch(hitsD); return; }
+  if (hitsD.length) { renderDesignacoesSearch(hitsD); return; }
+
   document.getElementById('results').innerText = 'Nenhum resultado encontrado';
 }
 
 // renderers
-function renderOperadorasSearch(list){
+function renderOperadorasSearch(list) {
   const el = document.getElementById('results');
   let html = '<table><tr><th>Operadora</th><th>Links</th><th>User</th><th>Senha</th><th>Email</th><th>Telefone</th><th>Obs</th><th>CNPJ</th></tr>';
-  list.forEach(r=>{
-    html += `<tr><td>${r.operadora||''}</td><td>${r.links||''}</td><td>${r.user||''}</td><td>${r.senha||''}</td><td>${r.email||''}</td><td>${r.telefone||''}</td><td>${r.obs||''}</td><td>${r.cnpj||''}</td></tr>`;
+  list.forEach(r => {
+    html += `<tr><td>${r.operadora || ''}</td><td>${r.links || ''}</td><td>${r.user || ''}</td><td>${r.senha || ''}</td><td>${r.email || ''}</td><td>${r.telefone || ''}</td><td>${r.obs || ''}</td><td>${r.cnpj || ''}</td></tr>`;
   });
   html += '</table>';
   el.innerHTML = html;
 }
 
-function renderDesignacoesSearch(list){
+function renderDesignacoesSearch(list) {
   const el = document.getElementById('results');
   let html = '<table><tr><th>Unidade</th><th>Operadoras</th><th>Designações</th></tr>';
-  list.forEach(r=>{
-    html += `<tr><td>${r.unidade||''}</td><td>${(r.operadoras||[]).join(', ')}</td><td>${(r.designacoes||[]).join(', ')}</td></tr>`;
+  list.forEach(r => {
+    html += `<tr><td>${r.unidade || ''}</td><td>${(r.operadoras || []).join(', ')}</td><td>${(r.designacoes || []).join(', ')}</td></tr>`;
   });
   html += '</table>';
   el.innerHTML = html;
 }
 
-function renderOperadorasTable(){
+function renderOperadorasTable() {
   const el = document.getElementById('operadorasTable');
-  if(!data.operadoras.length){ el.innerHTML = '<i>Nenhuma operadora cadastrada</i>'; return; }
+  if (!data.operadoras.length) { el.innerHTML = '<i>Nenhuma operadora cadastrada</i>'; return; }
   let html = '<table><tr><th>Operadora</th><th>Links</th><th>User</th><th>Senha</th><th>Email</th><th>Telefone</th><th>Obs</th><th>CNPJ</th></tr>';
-  data.operadoras.forEach(r=>{
-    html += `<tr><td>${r.operadora||''}</td><td>${r.links||''}</td><td>${r.user||''}</td><td>${r.senha||''}</td><td>${r.email||''}</td><td>${r.telefone||''}</td><td>${r.obs||''}</td><td>${r.cnpj||''}</td></tr>`;
+  data.operadoras.forEach(r => {
+    html += `<tr><td>${r.operadora || ''}</td><td>${r.links || ''}</td><td>${r.user || ''}</td><td>${r.senha || ''}</td><td>${r.email || ''}</td><td>${r.telefone || ''}</td><td>${r.obs || ''}</td><td>${r.cnpj || ''}</td></tr>`;
   });
   html += '</table>';
   el.innerHTML = html;
 }
 
-function renderDesignacoesTable(){
+function renderDesignacoesTable() {
   const el = document.getElementById('designacoesTable');
-  if(!data.designacoes.length){ el.innerHTML = '<i>Nenhuma designação cadastrada</i>'; return; }
+  if (!data.designacoes.length) { el.innerHTML = '<i>Nenhuma designação cadastrada</i>'; return; }
   let html = '<table><tr><th>Unidade</th><th>Operadoras</th><th>Designações</th></tr>';
-  data.designacoes.forEach(r=>{
-    html += `<tr><td>${r.unidade||''}</td><td>${(r.operadoras||[]).join(', ')}</td><td>${(r.designacoes||[]).join(', ')}</td></tr>`;
+  data.designacoes.forEach(r => {
+    html += `<tr><td>${r.unidade || ''}</td><td>${(r.operadoras || []).join(', ')}</td><td>${(r.designacoes || []).join(', ')}</td></tr>`;
   });
   html += '</table>';
   el.innerHTML = html;
 }
 
-function renderPassagem(){
+function renderPassagem() {
   const el = document.getElementById('passagemHtml');
-  if(!data.passagem || Object.keys(data.passagem).length===0){ el.innerHTML = '<i>Sem conteúdo de passagem</i>'; return; }
-  if(data.passagem.html) el.innerHTML = data.passagem.html;
-  else el.innerHTML = `<pre>${JSON.stringify(data.passagem, null, 2)}</pre>`;
+  if (!data.passagem || Object.keys(data.passagem).length === 0) { el.innerHTML = '<i>Sem conteúdo de passagem</i>'; return; }
+  el.innerHTML = data.passagem.html ? data.passagem.html : `<pre>${JSON.stringify(data.passagem, null, 2)}</pre>`;
 }
 
 // tabs
-document.querySelectorAll('.tabs button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+document.querySelectorAll('.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const t = btn.getAttribute('data-tab');
-    document.querySelectorAll('.tabcontent').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.tabcontent').forEach(s => s.classList.remove('active'));
     document.getElementById(t).classList.add('active');
   });
 });
 
 // login
-document.getElementById('btnLogin').addEventListener('click', ()=>{
+document.getElementById('btnLogin').addEventListener('click', () => {
   const u = prompt('Usuário:');
   const p = prompt('Senha:');
-  if(u === 'AMBEV_NOC' && p === 'Hitss@NOC'){
+  if (u === 'AMBEV_NOC' && p === 'Hitss@NOC') {
     logged = true;
     alert('Login OK — modo edição liberado (front-end).');
     document.querySelectorAll('.edit-controls').forEach(e => e.classList.remove('hidden'));
-  }else{
+  } else {
     alert('Credenciais inválidas');
   }
 });
 
 // search
-document.getElementById('btnBuscar').addEventListener('click', ()=> search(document.getElementById('q').value));
+document.getElementById('btnBuscar').addEventListener('click', () => search(document.getElementById('q').value));
 
 // saveJson
-async function saveJson(filename, jsonContent){
-  if(!logged){ 
-    alert('Apenas usuários autenticados podem salvar.'); 
-    return; 
+async function saveJson(filename, jsonContent) {
+  if (!logged) {
+    alert('Apenas usuários autenticados podem salvar.');
+    return;
   }
-
-  try{
+  try {
     const resp = await fetch('/api/update_json', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ 
-        filePath: `data/${filename}`, 
-        content: JSON.stringify(jsonContent) 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filePath: `data/${filename}`,
+        content: JSON.stringify(jsonContent)
       })
     });
-
     const j = await resp.json();
-
-    if(resp.ok) {
-      alert('Arquivo salvo com sucesso. Aguarde o deploy do GitHub Pages (pode levar alguns segundos).');
+    if (resp.ok) {
+      alert('Arquivo salvo com sucesso. Aguarde o deploy.');
       await loadAll();
     } else {
       alert('Erro ao salvar: ' + (j.error || JSON.stringify(j)));
       console.error(j);
     }
-
-  } catch(e){
+  } catch (e) {
     alert('Erro na requisição de salvamento: ' + e.message);
     console.error(e);
   }
 }
 
 // robust editor modal
-function openEditor(filename, currentJson){
+function openEditor(filename, currentJson) {
   const modal = document.getElementById('modal');
   const modalTitle = document.getElementById('modalTitle');
   const modalBody = document.getElementById('modalBody');
@@ -166,48 +166,44 @@ function openEditor(filename, currentJson){
 
   const editorArea = document.getElementById('editorArea');
   const jsonError = document.getElementById('jsonError');
+  modalOk.disabled = true;
 
-  modalOk.disabled = true; // inicialmente bloqueado
-
-  function validateJson() {
+  // valida JSON em tempo real
+  editorArea.addEventListener('input', () => {
     try {
       JSON.parse(editorArea.value);
       jsonError.innerText = '';
       modalOk.disabled = false;
-    } catch(e) {
+    } catch (e) {
       jsonError.innerText = 'JSON inválido: ' + e.message;
       modalOk.disabled = true;
     }
-  }
-
-  editorArea.addEventListener('input', validateJson);
-  validateJson();
+  });
 
   modalOk.onclick = async () => {
     try {
       const parsed = JSON.parse(editorArea.value);
       modal.classList.add('hidden');
       await saveJson(filename, parsed);
-    } catch(e) {
+    } catch (e) {
       alert('JSON inválido: ' + e.message);
     }
   };
-
   modalCancel.onclick = () => modal.classList.add('hidden');
 }
 
 // attach editor buttons
-document.getElementById('addOperadora').addEventListener('click', ()=> {
+document.getElementById('addOperadora').addEventListener('click', () => {
   const copy = [...data.operadoras];
-  copy.push({operadora:'NOVA', links:'', user:'', senha:'', email:'', telefone:'', obs:'', cnpj:''});
+  copy.push({ operadora: 'NOVA', links: '', user: '', senha: '', email: '', telefone: '', obs: '', cnpj: '' });
   openEditor('operadoras.json', copy);
 });
-document.getElementById('addDesignacao').addEventListener('click', ()=>{
+document.getElementById('addDesignacao').addEventListener('click', () => {
   const copy = [...data.designacoes];
-  copy.push({unidade:'NOVA', operadoras:[], designacoes:[]});
+  copy.push({ unidade: 'NOVA', operadoras: [], designacoes: [] });
   openEditor('designacoes.json', copy);
 });
-document.getElementById('editPassagem').addEventListener('click', ()=> {
+document.getElementById('editPassagem').addEventListener('click', () => {
   openEditor('passagem.json', data.passagem);
 });
 
