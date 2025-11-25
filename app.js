@@ -151,7 +151,7 @@ async function saveJson(filename, jsonContent){
   }
 
   try{
-    const resp = await fetch('/.netlify/functions/update_json', {
+    const resp = await fetch('/api/update_json'), {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
       body: JSON.stringify({ 
