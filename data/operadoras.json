@@ -1,1 +1,13 @@
 
+[
+  {
+    "operadora": "VIVO",
+    "links": "https://portal.vivo.com",
+    "user": "user_vivo",
+    "senha": "senha123",
+    "email": "contato@vivo.com",
+    "telefone": "+55 11 99999-9999",
+    "obs": "Acesso via VPN",
+    "cnpj": "00.000.000/0001-00"
+  }
+]
