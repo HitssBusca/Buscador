@@ -145,27 +145,37 @@ function openEditor(filename, currentJson){
 
 // saveJson - calls the serverless function to update the JSON in the repo
 async function saveJson(filename, jsonContent){
-  if(!logged){ alert('Apenas usuários autenticados podem salvar.'); return; }
+  if(!logged){ 
+    alert('Apenas usuários autenticados podem salvar.'); 
+    return; 
+  }
+
   try{
     const resp = await fetch('/.netlify/functions/update_json', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ filePath: `data/${filename}`, content: JSON.stringify(jsonContent) })
+      body: JSON.stringify({ 
+        filePath: `data/${filename}`, 
+        content: JSON.stringify(jsonContent) 
+      })
     });
+
     const j = await resp.json();
+
     if(resp.ok) {
       alert('Arquivo salvo com sucesso. Aguarde o deploy do GitHub Pages (pode levar alguns segundos).');
-      // reload data
       await loadAll();
     } else {
-      alert('Erro ao salvar: ' + (j.message || JSON.stringify(j)));
+      alert('Erro ao salvar: ' + (j.error || JSON.stringify(j)));
       console.error(j);
     }
-  }catch(e){
+
+  } catch(e){
     alert('Erro na requisição de salvamento: ' + e.message);
     console.error(e);
   }
 }
+
 
 // attach editor buttons
 document.getElementById('addOperadora').addEventListener('click', ()=> {
